@@ -1,0 +1,7 @@
+# GPU-only, for Colab fine-tuning (Stage 3). Not needed for the Stage 1
+# baseline eval, which only needs requirements.txt.
+unsloth
+trl>=0.12.0
+peft
+bitsandbytes
+datasets

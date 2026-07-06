@@ -1,0 +1,11 @@
+# Datasets, model checkpoints/weights, and the vendored eval suite are all
+# large binaries -- they don't belong in git. Spider is downloaded by the
+# Colab notebooks; trained weights are published to Hugging Face Hub instead.
+data/
+results/
+third_party/
+
+__pycache__/
+*.pyc
+
+.ipynb_checkpoints/

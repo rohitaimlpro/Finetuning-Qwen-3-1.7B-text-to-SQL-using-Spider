@@ -1,0 +1,7 @@
+transformers>=4.51.0
+accelerate>=0.30.0
+torch>=2.2.0
+sqlparse>=0.5.0
+tqdm>=4.66.0
+sentencepiece>=0.2.0
+nltk>=3.8.0
