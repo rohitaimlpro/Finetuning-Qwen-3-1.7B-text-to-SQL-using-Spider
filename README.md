@@ -2,7 +2,7 @@
 
 # Fine-tuning Qwen3-1.7B for Text-to-SQL
 
-**QLoRA fine-tuning on Spider, driven by baseline evaluation and error analysis — not guesswork**
+**QLoRA fine-tuning on Spider, driven by baseline evaluation and error analysis**
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
