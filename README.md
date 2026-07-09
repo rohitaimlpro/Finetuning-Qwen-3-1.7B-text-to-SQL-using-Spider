@@ -114,11 +114,18 @@ pip install -r requirements.txt        # evaluation only
 pip install -r requirements-train.txt  # + fine-tuning (Unsloth/TRL/bitsandbytes, GPU-only)
 ```
 
+## Responsible AI
+
+See **[MODEL_CARD.md](MODEL_CARD.md)** for the full model card — intended use, risks & mitigations, explainability limitations, and governance/regulatory notes (NIST AI RMF, EU AI Act).
+
+The SQL safety gate (`src/sql_safety.py`) is red-teamed, not just asserted: `src/redteam_sql_safety.py` runs 25 adversarial + legitimate cases (stacked-query injection, CTE-smuggled DML, keyword obfuscation, false-positive checks against legitimate joins/subqueries/set-ops) — all 25 currently pass, with results in `redteam_results.json`. The model card also documents what this gate does **not** cover (e.g. `UNION`-based exfiltration outside the intended schema).
+
 ## Status
 
 - [x] Stage 1 — baseline evaluation
 - [x] Error analysis
 - [x] Stage 3 — QLoRA fine-tuning + re-evaluation
+- [x] Model card + red-teamed safety gate
 - [ ] Stage 2 — vLLM + FastAPI deployment, containerization, throughput benchmarking
 - [ ] Publish fine-tuned weights to Hugging Face Hub
 

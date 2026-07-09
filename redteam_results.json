@@ -1,0 +1,231 @@
+{
+  "total": 25,
+  "failed": 0,
+  "results": [
+    {
+      "description": "classic stacked DROP",
+      "category": "stacked_injection",
+      "sql": "SELECT * FROM students; DROP TABLE students;",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "stacked DELETE via semicolon",
+      "category": "stacked_injection",
+      "sql": "SELECT id FROM users; DELETE FROM users",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "stacked with leading whitespace",
+      "category": "stacked_injection",
+      "sql": "SELECT 1 ;   DROP TABLE x",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "stacked, case-obfuscated",
+      "category": "stacked_injection",
+      "sql": "sElEcT * FROM students; DrOp TaBlE students;",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "trailing comment after real second statement",
+      "category": "stacked_injection",
+      "sql": "SELECT 1; DROP TABLE x -- comment",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "bare DROP",
+      "category": "single_destructive",
+      "sql": "DROP TABLE students",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "bare DELETE",
+      "category": "single_destructive",
+      "sql": "DELETE FROM students WHERE 1=1",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "bare UPDATE",
+      "category": "single_destructive",
+      "sql": "UPDATE students SET age = 0",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "bare INSERT",
+      "category": "single_destructive",
+      "sql": "INSERT INTO students VALUES (1, 'x')",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "PRAGMA (SQLite-specific)",
+      "category": "single_destructive",
+      "sql": "PRAGMA table_info(students)",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "ATTACH DATABASE",
+      "category": "single_destructive",
+      "sql": "ATTACH DATABASE 'evil.db' AS evil",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "forbidden word inside string literal",
+      "category": "false_positive_check",
+      "sql": "SELECT * FROM logs WHERE message = 'DROP TABLE attempt'",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT * FROM logs WHERE message = 'DROP TABLE attempt'",
+      "passed": true
+    },
+    {
+      "description": "identifier containing forbidden word as substring",
+      "category": "false_positive_check",
+      "sql": "SELECT insert_date FROM events",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT insert_date FROM events",
+      "passed": true
+    },
+    {
+      "description": "column literally named drop, quoted",
+      "category": "false_positive_check",
+      "sql": "SELECT \"drop\" FROM events",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT \"drop\" FROM events",
+      "passed": true
+    },
+    {
+      "description": "simple select",
+      "category": "legitimate",
+      "sql": "SELECT name FROM singer",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT name FROM singer",
+      "passed": true
+    },
+    {
+      "description": "join",
+      "category": "legitimate",
+      "sql": "SELECT s.name FROM singer s JOIN concert c ON s.singer_id = c.singer_id",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT s.name FROM singer s JOIN concert c ON s.singer_id = c.singer_id",
+      "passed": true
+    },
+    {
+      "description": "subquery",
+      "category": "legitimate",
+      "sql": "SELECT name FROM singer WHERE age > (SELECT avg(age) FROM singer)",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT name FROM singer WHERE age > (SELECT avg(age) FROM singer)",
+      "passed": true
+    },
+    {
+      "description": "set operation INTERSECT",
+      "category": "legitimate",
+      "sql": "SELECT country FROM singer WHERE age > 40 INTERSECT SELECT country FROM singer WHERE age < 30",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT country FROM singer WHERE age > 40 INTERSECT SELECT country FROM singer WHERE age < 30",
+      "passed": true
+    },
+    {
+      "description": "group by having",
+      "category": "legitimate",
+      "sql": "SELECT country, count(*) FROM singer GROUP BY country HAVING count(*) > 2",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT country, count(*) FROM singer GROUP BY country HAVING count(*) > 2",
+      "passed": true
+    },
+    {
+      "description": "UNION pulling from an unexpected table",
+      "category": "known_limitation",
+      "sql": "SELECT name FROM students UNION SELECT password FROM users",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT name FROM students UNION SELECT password FROM users",
+      "passed": true
+    },
+    {
+      "description": "semicolon inside a string literal (must not be mistaken for a statement split)",
+      "category": "false_positive_check",
+      "sql": "SELECT '; DROP TABLE x' AS msg",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT '; DROP TABLE x' AS msg",
+      "passed": true
+    },
+    {
+      "description": "SQL comment containing a semicolon+DROP (inert, must not trigger)",
+      "category": "false_positive_check",
+      "sql": "SELECT 1 -- ; DROP TABLE x",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "SELECT 1 -- ; DROP TABLE x",
+      "passed": true
+    },
+    {
+      "description": "CTE prefix smuggling a DELETE (WITH ... DELETE)",
+      "category": "stacked_injection",
+      "sql": "WITH t AS (SELECT 1) DELETE FROM students",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    },
+    {
+      "description": "CTE prefix on a legitimate SELECT",
+      "category": "legitimate",
+      "sql": "WITH t AS (SELECT 1) SELECT * FROM t",
+      "expected_safe": true,
+      "actual_safe": true,
+      "sanitized_to": "WITH t AS (SELECT 1) SELECT * FROM t",
+      "passed": true
+    },
+    {
+      "description": "keyword split by a nested comment (DR/**/OP)",
+      "category": "single_destructive",
+      "sql": "DR/**/OP TABLE students",
+      "expected_safe": false,
+      "actual_safe": false,
+      "sanitized_to": "SELECT 1",
+      "passed": true
+    }
+  ]
+}
